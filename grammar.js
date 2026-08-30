@@ -125,7 +125,11 @@ module.exports = grammar({
                 ";",
             ),
 
-        module_path: ($) => sep1($.identifier, "."),
+        module_path: ($) =>
+            seq(
+                repeat(seq(field("prefix", $.identifier), ".")),
+                field("tail", $.identifier),
+            ),
 
         // [flags] def Alias: type;
         type_alias_declaration: ($) =>

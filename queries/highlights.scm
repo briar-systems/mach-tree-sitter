@@ -26,7 +26,13 @@
 "fin" @keyword.control
 
 ; Assembly
-"asm" @keyword
+"asm" @keyword.directive
+
+; value after '.'
+(field_expression field: (identifier) @keyword.repeat)
+
+((identifier) @type.macro
+  (#match? @type.macro "^[_]*[A-Z][A-Z0-9_]*$"))
 
 ; Literals
 (integer_literal) @number
@@ -34,11 +40,6 @@
 (char_literal) @character
 (string_literal) @string
 (nil_literal) @constant.builtin
-
-; #[attr] decorators
-(decorator
-  "#[" @punctuation.special
-  name: (identifier) @attribute)
 
 ; Types
 (primitive_type) @type.builtin
@@ -94,20 +95,20 @@
   "]" @punctuation.bracket)
 
 ; Fields and variables
-(field_declaration
-  name: (identifier) @property)
+;(field_declaration
+  ;name: (identifier) @property)
 
-(field_expression
-  field: (identifier) @property)
+;(field_expression
+  ;field: (identifier) @property)
 
 (initializer_field
-  name: (identifier) @property)
+  name: (identifier) @keyword.repeat)
 
-(value_declaration
-  name: (identifier) @variable)
+;(value_declaration
+  ;name: (identifier) @variable)
 
-(variable_declaration
-  name: (identifier) @variable)
+;(variable_declaration
+  ;name: (identifier) @variable)
 
 ; Modules
 (use_declaration
@@ -118,6 +119,19 @@
 
 (module_path
   (identifier) @module)
+
+(module_path
+  tail: (identifier) @variable.module)
+
+(use_declaration
+  alias: (identifier)
+  path: (module_path
+          (identifier) @module))
+
+(forward_declaration
+  alias: (identifier)
+  path: (module_path
+          (identifier) @module))
 
 ; Test declarations
 (test_declaration
@@ -186,5 +200,19 @@
 "," @punctuation.delimiter
 "." @punctuation.delimiter
 
+"!" @keyword.exception
+"~" @keyword.exception
+"^" @keyword.exception
+"?" @keyword.exception
+"@" @keyword.exception
+
 "*" @operator
 "&" @operator
+
+; #[attr] decorators
+(decorator
+  "#[" @punctuation.special
+  ;name: (identifier) @attribute
+  name: (identifier) @punctuation.special
+  "]" @punctuation.special
+  ) @punctuation.special
