@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-mach",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Tree-sitter grammar for the Mach programming language",
   "type": "module",
   "license": "MIT",
