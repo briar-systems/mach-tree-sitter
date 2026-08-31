@@ -1004,3 +1004,73 @@ val x: u8 = @(buf + 3);
         (binary_expression
           left: (identifier)
           right: (integer_literal))))))
+
+================================================================================
+secret strip: explicit primitive target
+================================================================================
+
+val public: u32 = secret:^u32;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (primitive_type)
+    value: (secret_strip_expression
+      value: (identifier)
+      type: (primitive_type))))
+
+================================================================================
+secret strip: explicit compound target
+================================================================================
+
+val public: *u8 = secret:^*u8;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (pointer_type
+      (primitive_type))
+    value: (secret_strip_expression
+      value: (identifier)
+      type: (pointer_type
+        (primitive_type)))))
+
+================================================================================
+secret strip: xor operand retains infix caret
+================================================================================
+
+val public: u32 = (left ^ right):^u32;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (primitive_type)
+    value: (secret_strip_expression
+      value: (parenthesized_expression
+        (binary_expression
+          left: (identifier)
+          right: (identifier)))
+      type: (primitive_type))))
+
+================================================================================
+secret strip: bare operator is invalid
+================================================================================
+
+val public: u32 = secret:^;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (primitive_type)
+    value: (secret_strip_expression
+      value: (identifier)
+      type: (type_identifier
+        (MISSING identifier)))))
