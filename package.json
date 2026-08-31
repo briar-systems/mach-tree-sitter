@@ -2,11 +2,12 @@
   "name": "tree-sitter-mach",
   "version": "0.3.0",
   "description": "Tree-sitter grammar for the Mach programming language",
+  "type": "module",
   "license": "MIT",
   "author": "octalide",
   "repository": {
     "type": "git",
-    "url": "https://github.com/octalide/tree-sitter-mach.git"
+    "url": "https://github.com/briar-systems/mach-tree-sitter.git"
   },
   "keywords": [
     "tree-sitter",
@@ -17,9 +18,11 @@
   "main": "bindings/node",
   "types": "bindings/node",
   "scripts": {
-    "build": "tree-sitter generate && node-gyp build",
+    "build": "tree-sitter generate && node-gyp rebuild",
     "generate": "tree-sitter generate",
-    "test": "tree-sitter test",
+    "install": "node-gyp-build",
+    "test": "tree-sitter test && npm run test:binding",
+    "test:binding": "npm run build && node --test bindings/node/*_test.js",
     "parse": "tree-sitter parse",
     "highlight": "tree-sitter highlight"
   },
@@ -28,15 +31,19 @@
     "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
-    "tree-sitter-cli": "^0.24.0"
+    "tree-sitter": "0.25.1",
+    "tree-sitter-cli": "0.26.9"
   },
   "peerDependencies": {
-    "tree-sitter": "^0.21.0"
+    "tree-sitter": "^0.25.0"
   },
   "peerDependenciesMeta": {
     "tree-sitter": {
       "optional": true
     }
+  },
+  "engines": {
+    "node": ">=18"
   },
   "files": [
     "grammar.js",
@@ -46,5 +53,9 @@
     "queries/*",
     "src/**",
     "*.wasm"
-  ]
+  ],
+  "allowScripts": {
+    "tree-sitter@0.25.1": true,
+    "tree-sitter-cli@0.26.9": true
+  }
 }

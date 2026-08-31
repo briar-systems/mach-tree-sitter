@@ -33,7 +33,7 @@ const TYPE_SUFFIX = choice(
     "f64",
 );
 
-module.exports = grammar({
+export default grammar({
     name: "mach",
 
     extras: ($) => [/\s/, $.comment],
