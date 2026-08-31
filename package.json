@@ -15,8 +15,14 @@
     "mach",
     "language"
   ],
-  "main": "bindings/node",
-  "types": "bindings/node",
+  "main": "bindings/node/index.js",
+  "types": "bindings/node/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./bindings/node/index.d.ts",
+      "import": "./bindings/node/index.js"
+    }
+  },
   "scripts": {
     "build": "tree-sitter generate && node-gyp rebuild",
     "generate": "tree-sitter generate",
