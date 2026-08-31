@@ -24,7 +24,7 @@ Add the parser to your `nvim-treesitter` configuration:
 local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
 parser_config.mach = {
   install_info = {
-    url = "https://github.com/octalide/tree-sitter-mach",
+    url = "https://github.com/briar-systems/mach-tree-sitter",
     files = { "src/parser.c" },
     branch = "main",
   },
@@ -47,7 +47,7 @@ comment-token = "#"
 
 [[grammar]]
 name = "mach"
-source = { git = "https://github.com/octalide/tree-sitter-mach", rev = "main" }
+source = { git = "https://github.com/briar-systems/mach-tree-sitter", rev = "main" }
 ```
 
 ## Development
@@ -108,6 +108,8 @@ The grammar covers the full Mach language surface:
 | Pointers (`*T`, `**T`), address-of (`?`), deref (`@`)       | ✅     |
 | Arrays (`[N]T`)                                              | ✅     |
 | Type casts (`::` value, `:~` bit reinterpret)               | ✅     |
+| Secret types (`^T`) and explicit strips (`expr:^T`)          | ✅     |
+| Annotations (`#[name]`, `#[name(args)]`)                     | ✅     |
 | Composite literals (`Type{ ... }`, `[N]T{ ... }`)            | ✅     |
 | Inline assembly (`asm <isa> { ... }`)                       | ✅     |
 | Compile-time (`$if`, `$mach.*`, `$size_of`, etc.)            | ✅     |
@@ -118,16 +120,19 @@ The grammar covers the full Mach language surface:
 
 ```
 tree-sitter-mach/
+├── binding.gyp            # Node binding build configuration
+├── bindings/node/         # Node binding and type declarations
 ├── grammar.js              # Grammar definition
 ├── queries/
 │   ├── highlights.scm      # Syntax highlighting queries
 │   └── indents.scm         # Auto-indentation queries
 ├── test/
-│   └── corpus/             # Tree-sitter test cases
+│   ├── corpus/             # Parser test cases
+│   └── highlight/          # Highlight query assertions
 ├── package.json
 └── README.md
 ```
 
 ## License
 
-[MIT](../mach/LICENSE)
+[MIT](./LICENSE)

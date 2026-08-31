@@ -35,11 +35,6 @@
 (string_literal) @string
 (nil_literal) @constant.builtin
 
-; #[attr] decorators
-(decorator
-  "#[" @punctuation.special
-  name: (identifier) @attribute)
-
 ; Types
 (primitive_type) @type.builtin
 
@@ -170,6 +165,12 @@
 (cast_expression
   operator: _ @operator)
 
+(secret_strip_expression
+  operator: _ @operator)
+
+(secret_type
+  marker: "^" @type.qualifier)
+
 (assignment_expression
   "=" @operator)
 
@@ -188,3 +189,9 @@
 
 "*" @operator
 "&" @operator
+
+; keep decorator punctuation after the broad bracket captures so both ends match
+(decorator
+  "#[" @punctuation.special
+  name: (identifier) @attribute
+  "]" @punctuation.special)

@@ -5,10 +5,8 @@
 
 # Node
 /node_modules/
-/bindings/
 
 # Tree-sitter generated
-/binding.gyp
 /Makefile
 /CMakeLists.txt
 /Package.swift

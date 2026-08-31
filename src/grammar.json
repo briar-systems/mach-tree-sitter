@@ -1757,6 +1757,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "secret_strip_expression"
+        },
+        {
+          "type": "SYMBOL",
           "name": "typed_literal"
         },
         {
@@ -2356,6 +2360,39 @@
         ]
       }
     },
+    "secret_strip_expression": {
+      "type": "PREC_LEFT",
+      "value": 13,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "value",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_expression"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "operator",
+            "content": {
+              "type": "STRING",
+              "value": ":^"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_type"
+            }
+          }
+        ]
+      }
+    },
     "call_expression": {
       "type": "PREC_LEFT",
       "value": 13,
@@ -2878,6 +2915,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "secret_type"
+        },
+        {
+          "type": "SYMBOL",
           "name": "pointer_type"
         },
         {
@@ -2954,6 +2995,31 @@
           "value": "ptr"
         }
       ]
+    },
+    "secret_type": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "FIELD",
+            "name": "marker",
+            "content": {
+              "type": "STRING",
+              "value": "^"
+            }
+          },
+          {
+            "type": "FIELD",
+            "name": "type",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_type"
+            }
+          }
+        ]
+      }
     },
     "pointer_type": {
       "type": "PREC_LEFT",
@@ -3765,10 +3831,6 @@
     [
       "generic_type",
       "type_identifier"
-    ],
-    [
-      "_type",
-      "generic_type"
     ],
     [
       "_primary_expression",
