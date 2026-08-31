@@ -54,8 +54,6 @@ module.exports = grammar({
         [$._primary_expression, $.generic_type, $.type_identifier],
         // identifier `[` in type position: generic_type or end of type_identifier
         [$.generic_type, $.type_identifier],
-        // after a type_identifier, `[` may continue into generic_type or stop
-        [$._type, $.generic_type],
         // a primitive name inside `[` is either an index value or a type arg
         [$._primary_expression, $._type],
         // rec/uni `{` is a field block (type) or an initializer list (literal)
@@ -422,6 +420,7 @@ module.exports = grammar({
                 $.binary_expression,
                 $.unary_expression,
                 $.cast_expression,
+                $.secret_strip_expression,
                 $.typed_literal,
                 $.array_literal,
                 $.record_literal,
@@ -512,6 +511,17 @@ module.exports = grammar({
                 seq(
                     field("value", $._expression),
                     field("operator", choice("::", ":~")),
+                    field("type", $._type),
+                ),
+            ),
+
+        // expr:^type explicitly removes the outer secret qualifier
+        secret_strip_expression: ($) =>
+            prec.left(
+                PREC.POSTFIX,
+                seq(
+                    field("value", $._expression),
+                    field("operator", ":^"),
                     field("type", $._type),
                 ),
             ),
@@ -645,6 +655,7 @@ module.exports = grammar({
         _type: ($) =>
             choice(
                 $.primitive_type,
+                $.secret_type,
                 $.pointer_type,
                 $.array_type,
                 $.function_type,
@@ -667,6 +678,15 @@ module.exports = grammar({
                 "f32",
                 "f64",
                 "ptr",
+            ),
+
+        // ^type marks the value carried by a type as secret
+        secret_type: ($) =>
+            prec.right(
+                seq(
+                    field("marker", "^"),
+                    field("type", $._type),
+                ),
             ),
 
         // *type (nesting **type falls out of the recursion)

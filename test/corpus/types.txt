@@ -572,3 +572,66 @@ var items: [4]Wrap[i64];
       element: (generic_type
         name: (identifier)
         (primitive_type)))))
+
+================================================================================
+type: secret primitive
+================================================================================
+
+var secret: ^u32;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_declaration
+    name: (identifier)
+    type: (secret_type
+      type: (primitive_type))))
+
+================================================================================
+type: pointer to secret and secret pointer
+================================================================================
+
+var pointee: *^u8;
+var address: ^*u8;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_declaration
+    name: (identifier)
+    type: (pointer_type
+      (secret_type
+        type: (primitive_type))))
+  (variable_declaration
+    name: (identifier)
+    type: (secret_type
+      type: (pointer_type
+        (primitive_type)))))
+
+================================================================================
+type: secret qualifiers nest in compound types
+================================================================================
+
+var values: Result[^u32, [4]^Buffer];
+var opaque: ^^Token;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (variable_declaration
+    name: (identifier)
+    type: (generic_type
+      name: (identifier)
+      (secret_type
+        type: (primitive_type))
+      (array_type
+        size: (integer_literal)
+        element: (secret_type
+          type: (type_identifier
+            (identifier))))))
+  (variable_declaration
+    name: (identifier)
+    type: (secret_type
+      type: (secret_type
+        type: (type_identifier
+          (identifier))))))
