@@ -7,10 +7,12 @@ test("can load grammar and parse representative syntax", async () => {
   const { default: language } = await import("./index.js");
   assert.doesNotThrow(() => parser.setLanguage(language));
 
-  const source = `#[annotations()]
+  const source = `#[deprecated("use reveal2")]
 fun reveal[T](value: ^T) T {
-  ret value:^T;
-}`;
+  ret value:>T;
+}
+tag Shape: u8 { empty; circle: f32; }
+fun is_round(s: Shape) bool { ret sel s.circle; }`;
   const tree = parser.parse(source);
 
   assert.equal(tree.rootNode.hasError, false, tree.rootNode.toString());
