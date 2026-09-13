@@ -1006,10 +1006,10 @@ val x: u8 = @(buf + 3);
           right: (integer_literal))))))
 
 ================================================================================
-secret strip: explicit primitive target
+declassify: explicit primitive target
 ================================================================================
 
-val public: u32 = secret:^u32;
+val public: u32 = secret:>u32;
 
 --------------------------------------------------------------------------------
 
@@ -1022,10 +1022,10 @@ val public: u32 = secret:^u32;
       type: (primitive_type))))
 
 ================================================================================
-secret strip: explicit compound target
+declassify: explicit compound target
 ================================================================================
 
-val public: *u8 = secret:^*u8;
+val public: *u8 = secret:>*u8;
 
 --------------------------------------------------------------------------------
 
@@ -1040,10 +1040,10 @@ val public: *u8 = secret:^*u8;
         (primitive_type)))))
 
 ================================================================================
-secret strip: xor operand retains infix caret
+declassify: xor operand retains infix caret
 ================================================================================
 
-val public: u32 = (left ^ right):^u32;
+val public: u32 = (left ^ right):>u32;
 
 --------------------------------------------------------------------------------
 
@@ -1059,18 +1059,86 @@ val public: u32 = (left ^ right):^u32;
       type: (primitive_type))))
 
 ================================================================================
-secret strip: bare operator is invalid
+declassify: adjacent comparison keeps :> whole
 ================================================================================
 
-val public: u32 = secret:^;
+val ok: bool = a:>u32 >= b;
 
 --------------------------------------------------------------------------------
 
 (source_file
   (value_declaration
     name: (identifier)
-    type: (primitive_type)
-    value: (secret_strip_expression
-      value: (identifier)
-      type: (type_identifier
-        (MISSING identifier)))))
+    type: (type_identifier
+      (identifier))
+    value: (binary_expression
+      left: (secret_strip_expression
+        value: (identifier)
+        type: (primitive_type))
+      right: (identifier))))
+
+================================================================================
+sel: case test on a member
+================================================================================
+
+fun f() { if (sel r.err) { ret 1; } }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    name: (identifier)
+    (parameter_list)
+    (block
+      (if_statement
+        condition: (sel_expression
+          operand: (field_expression
+            object: (identifier)
+            field: (identifier)))
+        (block
+          (return_statement
+            (integer_literal)))))))
+
+================================================================================
+sel: binds looser than postfix and tighter than binary
+================================================================================
+
+val both: bool = sel a.b.c && !sel d.e;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (binary_expression
+      left: (sel_expression
+        operand: (field_expression
+          object: (field_expression
+            object: (identifier)
+            field: (identifier))
+          field: (identifier)))
+      right: (unary_expression
+        operand: (sel_expression
+          operand: (field_expression
+            object: (identifier)
+            field: (identifier)))))))
+
+================================================================================
+sel: case test through a descriptor projection
+================================================================================
+
+val hit: bool = sel v.[c];
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (sel_expression
+      operand: (projection_expression
+        object: (identifier)
+        index: (identifier)))))

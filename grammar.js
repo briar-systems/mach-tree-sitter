@@ -19,18 +19,26 @@ const PREC = {
     PRIMARY: 14,
 };
 
-// Numeric type suffix accepted on integer and float literals (e.g. 42i64, 3.0f32).
-const TYPE_SUFFIX = choice(
-    "u8",
-    "u16",
-    "u32",
-    "u64",
-    "i8",
-    "i16",
-    "i32",
-    "i64",
-    "f32",
-    "f64",
+// Numeric type suffixes as the lexer scans them: a width letter and digits
+// (e.g. 42i64, 0xFFu32, 3.0f32); the width is checked later, not lexed.
+const INT_SUFFIX = /[uif][0-9]*/;
+const FLOAT_SUFFIX = /f[0-9]*/;
+
+// Comptime intrinsics whose first operand is a type; mirrors
+// comptime.intrinsic_takes_type_operand in the compiler front end.
+const TYPE_OPERAND_INTRINSIC = choice(
+    "size_of",
+    "length_of",
+    "align_of",
+    "offset_of",
+    "fields",
+    "cases",
+    "is_record",
+    "is_union",
+    "is_tag",
+    "is_pointer",
+    "is_secret",
+    "type_name",
 );
 
 export default grammar({
@@ -60,6 +68,14 @@ export default grammar({
         [$.field_declaration_list, $.initializer_list],
         // function type optional return-type lookahead
         [$.function_type],
+        // a dotted head before `{` is one type path or a type plus a tag case;
+        // the two are not distinguishable syntactically, so the plain dotted
+        // form stays a typed_literal and tag_literal wins only where a
+        // generic head or a `.[desc]` makes the case segment unambiguous
+        [$.type_identifier],
+        // `rec {` / `uni {` before a block: a literal or an identifier so named
+        [$.record_literal, $._keyword_identifier],
+        [$.union_literal, $._keyword_identifier],
     ],
 
     word: ($) => $.identifier,
@@ -93,6 +109,7 @@ export default grammar({
                 $.type_alias_declaration,
                 $.record_declaration,
                 $.union_declaration,
+                $.tag_declaration,
                 $.value_declaration,
                 $.variable_declaration,
                 $.function_declaration,
@@ -104,9 +121,10 @@ export default grammar({
         // pub / ext visibility and linkage flags, any order, zero or more
         modifiers: ($) => repeat1(choice("pub", "ext")),
 
-        // [flags] use [alias:] module.path;
+        // [`decorator`...] [flags] use [alias:] module.path;
         use_declaration: ($) =>
             seq(
+                repeat($.decorator),
                 optional($.modifiers),
                 "use",
                 optional(seq(field("alias", $.identifier), ":")),
@@ -114,9 +132,10 @@ export default grammar({
                 ";",
             ),
 
-        // fwd [alias:] module.path;  (re-export; always public, never `pub`)
+        // [`decorator`...] fwd [alias:] module.path;  (re-export; always public, never `pub`)
         forward_declaration: ($) =>
             seq(
+                repeat($.decorator),
                 "fwd",
                 optional(seq(field("alias", $.identifier), ":")),
                 field("path", $.module_path),
@@ -125,9 +144,10 @@ export default grammar({
 
         module_path: ($) => sep1($.identifier, "."),
 
-        // [flags] def Alias: type;
+        // [`decorator`...] [flags] def Alias: type;
         type_alias_declaration: ($) =>
             seq(
+                repeat($.decorator),
                 optional($.modifiers),
                 "def",
                 field("name", $.identifier),
@@ -158,6 +178,30 @@ export default grammar({
                 $.field_declaration_list,
             ),
 
+        // [`decorator`...] [flags] tag Name[T]: disc { case; case: payload; }
+        tag_declaration: ($) =>
+            seq(
+                repeat($.decorator),
+                optional($.modifiers),
+                "tag",
+                field("name", $.identifier),
+                optional($.type_parameters),
+                ":",
+                field("discriminator", $._type),
+                $.tag_case_list,
+            ),
+
+        tag_case_list: ($) => seq("{", repeat($.tag_case), "}"),
+
+        // [`decorator`...] name [: payload];
+        tag_case: ($) =>
+            seq(
+                repeat($.decorator),
+                field("name", $.identifier),
+                optional(seq(":", field("payload", $._type))),
+                ";",
+            ),
+
         field_declaration_list: ($) =>
             seq("{", repeat($.field_declaration), "}"),
 
@@ -176,9 +220,20 @@ export default grammar({
 
         // [`decorator`...] [flags] val name [: type] [= expr];
         value_declaration: ($) =>
+            seq(repeat($.decorator), optional($.modifiers), $._value_binding),
+
+        // [`decorator`...] [flags] var name [: type] [= expr];
+        variable_declaration: ($) =>
+            seq(repeat($.decorator), optional($.modifiers), $._variable_binding),
+
+        // a local binding takes neither decorators nor flags, so `ext`, `pub`
+        // and `#[` at statement start are ordinary identifiers and errors
+        local_value_declaration: ($) => $._value_binding,
+
+        local_variable_declaration: ($) => $._variable_binding,
+
+        _value_binding: ($) =>
             seq(
-                repeat($.decorator),
-                optional($.modifiers),
                 "val",
                 field("name", $.identifier),
                 optional(seq(":", field("type", $._type))),
@@ -186,11 +241,8 @@ export default grammar({
                 ";",
             ),
 
-        // [`decorator`...] [flags] var name [: type] [= expr];
-        variable_declaration: ($) =>
+        _variable_binding: ($) =>
             seq(
-                repeat($.decorator),
-                optional($.modifiers),
                 "var",
                 field("name", $.identifier),
                 optional(seq(":", field("type", $._type))),
@@ -226,7 +278,7 @@ export default grammar({
                                 seq(
                                     ",",
                                     // trailing C-style ... or named pack va: ...
-                                    choice($.variadic_parameter, $.pack_parameter),
+                                    optional(choice($.variadic_parameter, $.pack_parameter)),
                                 ),
                             ),
                         ),
@@ -251,9 +303,10 @@ export default grammar({
         pack_parameter: ($) =>
             seq(field("name", $.identifier), ":", "..."),
 
-        // [flags] test "name" { body }
+        // [`decorator`...] [flags] test "name" { body }
         test_declaration: ($) =>
             seq(
+                repeat($.decorator),
                 optional($.modifiers),
                 "test",
                 field("name", $.string_literal),
@@ -327,12 +380,23 @@ export default grammar({
         comptime_expression_statement: ($) =>
             seq($.comptime_expression, optional(";")),
 
-        // $intrinsic(args) | $mach.build.os | $project.version | $bin.name
+        // $intrinsic(args) | $size_of(T, ...) | $mach.build.os | $project.version
         comptime_expression: ($) =>
             seq(
                 "$",
                 choice(
-                    // $size_of(T), $error("msg"), $fields(T), $type_of(e), $assert(cond, "msg")
+                    // $size_of(*T), $fields(T), $offset_of(T, field): the first
+                    // operand of these intrinsics is a type, so `*T`, `[N]T`,
+                    // `^T` and `Name[T]` read as types rather than expressions
+                    seq(
+                        field("name", alias(TYPE_OPERAND_INTRINSIC, $.identifier)),
+                        "(",
+                        field("type", $._type),
+                        repeat(seq(",", $._expression)),
+                        optional(","),
+                        ")",
+                    ),
+                    // $error("msg"), $type_of(e), $assert(cond, "msg")
                     seq(
                         field("name", $.identifier),
                         "(",
@@ -350,8 +414,8 @@ export default grammar({
 
         _statement: ($) =>
             choice(
-                $.value_declaration,
-                $.variable_declaration,
+                alias($.local_value_declaration, $.value_declaration),
+                alias($.local_variable_declaration, $.variable_declaration),
                 $.if_statement,
                 $.for_statement,
                 $.return_statement,
@@ -395,9 +459,11 @@ export default grammar({
 
         return_statement: ($) => seq("ret", optional($._expression), ";"),
 
-        break_statement: ($) => seq("brk", ";"),
+        // `brk;` and `cnt;` are statements only when followed by `;`; the
+        // precedence takes the keyword over an identifier named brk or cnt
+        break_statement: ($) => prec(1, seq("brk", ";")),
 
-        continue_statement: ($) => seq("cnt", ";"),
+        continue_statement: ($) => prec(1, seq("cnt", ";")),
 
         // fin statement (runs at scope exit — Mach's defer)
         defer_statement: ($) => seq("fin", $._statement),
@@ -419,9 +485,11 @@ export default grammar({
                 $.assignment_expression,
                 $.binary_expression,
                 $.unary_expression,
+                $.sel_expression,
                 $.cast_expression,
                 $.secret_strip_expression,
                 $.typed_literal,
+                $.tag_literal,
                 $.array_literal,
                 $.record_literal,
                 $.union_literal,
@@ -445,6 +513,7 @@ export default grammar({
         _primary_expression: ($) =>
             choice(
                 $.identifier,
+                $._keyword_identifier,
                 // primitive type names are ordinary identifiers; they appear in
                 // value position as type arguments to intrinsics ($size_of(u32))
                 $.primitive_type,
@@ -515,13 +584,18 @@ export default grammar({
                 ),
             ),
 
-        // expr:^type explicitly removes the outer secret qualifier
+        // sel place.case / sel place.[case] — case test; binds tighter than
+        // every binary operator and looser than postfix
+        sel_expression: ($) =>
+            prec(PREC.UNARY, seq("sel", field("operand", $._expression))),
+
+        // expr:>type declassifies a secret, always naming its public result type
         secret_strip_expression: ($) =>
             prec.left(
                 PREC.POSTFIX,
                 seq(
                     field("value", $._expression),
-                    field("operator", ":^"),
+                    field("operator", ":>"),
                     field("type", $._type),
                 ),
             ),
@@ -602,6 +676,21 @@ export default grammar({
                 ),
             ),
 
+        // Type.case{...}, Type[T].case{...}, or T.[descriptor]{...}
+        tag_literal: ($) =>
+            prec.dynamic(
+                0,
+                seq(
+                    field("type", choice($.type_identifier, $.generic_type)),
+                    ".",
+                    choice(
+                        field("case", $.identifier),
+                        seq("[", field("case_descriptor", $._expression), "]"),
+                    ),
+                    $.initializer_list,
+                ),
+            ),
+
         // [N]Type{ values }
         array_literal: ($) =>
             prec.dynamic(2, seq($.array_type, $.initializer_list)),
@@ -643,7 +732,7 @@ export default grammar({
         initializer_field: ($) =>
             choice(
                 seq(
-                    field("name", $.identifier),
+                    field("name", choice($.identifier, $._keyword_identifier)),
                     ":",
                     field("value", $._expression),
                 ),
@@ -651,6 +740,16 @@ export default grammar({
             ),
 
         nil_literal: ($) => "nil",
+
+        // the compiler lexes every keyword as an identifier and recognises it
+        // by position; these are the ones also valid at the start of an
+        // expression or statement, where the keyword reading would otherwise
+        // win. the negative dynamic precedence yields to `rec {`, `cnt;`, ...
+        _keyword_identifier: ($) =>
+            prec.dynamic(
+                -1,
+                alias(choice("rec", "uni", "sel", "brk", "cnt"), $.identifier),
+            ),
 
         _type: ($) =>
             choice(
@@ -662,7 +761,17 @@ export default grammar({
                 $.generic_type,
                 $.record_type,
                 $.union_type,
+                $.comptime_type,
                 $.type_identifier,
+            ),
+
+        // $pointee_of(T) / $discriminant_of(T) — comptime type constructors;
+        // dynamic precedence favours the type reading over an index expression
+        // holding an intrinsic call when both are live after `identifier [`
+        comptime_type: ($) =>
+            prec.dynamic(
+                1,
+                seq("$", field("name", $.identifier), "(", field("type", $._type), ")"),
             ),
 
         primitive_type: ($) =>
@@ -703,19 +812,16 @@ export default grammar({
                 ),
             ),
 
-        // fun(params) [return_type]
+        // fun(types) [return_type]; parameters are bare types, a trailing
+        // `...` marks a C-variadic signature
         function_type: ($) =>
             seq(
                 "fun",
                 "(",
                 optional(
-                    sep1(
-                        choice(
-                            $._type,
-                            seq($.identifier, ":", $._type),
-                            $.variadic_parameter,
-                        ),
-                        ",",
+                    seq(
+                        sep1($._type, ","),
+                        optional(seq(",", optional($.variadic_parameter))),
                     ),
                 ),
                 ")",
@@ -750,33 +856,39 @@ export default grammar({
                         "0",
                         choice("x", "X"),
                         /[0-9a-fA-F][0-9a-fA-F_]*/,
-                        optional(TYPE_SUFFIX),
+                        optional(INT_SUFFIX),
                     ),
                     seq(
                         "0",
                         choice("b", "B"),
                         /[01][01_]*/,
-                        optional(TYPE_SUFFIX),
+                        optional(INT_SUFFIX),
                     ),
                     seq(
                         "0",
                         choice("o", "O"),
                         /[0-7][0-7_]*/,
-                        optional(TYPE_SUFFIX),
+                        optional(INT_SUFFIX),
                     ),
-                    seq(/[0-9][0-9_]*/, optional(TYPE_SUFFIX)),
+                    seq(/[0-9][0-9_]*/, optional(INT_SUFFIX)),
                 ),
             ),
 
-        // 3.14, 1.0, 0.5e10, 1.5E-3, 3.14f64
+        // 3.14, 1.0, 0.5e10, 1.5E-3, 1e0f32, 3.14f64; a fraction or an
+        // exponent makes it a float
         float_literal: ($) =>
             token(
                 seq(
                     /[0-9][0-9_]*/,
-                    ".",
-                    /[0-9][0-9_]*/,
-                    optional(seq(/[eE]/, optional(/[+-]/), /[0-9][0-9_]*/)),
-                    optional(TYPE_SUFFIX),
+                    choice(
+                        seq(
+                            ".",
+                            /[0-9][0-9_]*/,
+                            optional(seq(/[eE]/, optional(/[+-]/), /[0-9][0-9_]*/)),
+                        ),
+                        seq(/[eE]/, optional(/[+-]/), /[0-9][0-9_]*/),
+                    ),
+                    optional(FLOAT_SUFFIX),
                 ),
             ),
 

@@ -452,10 +452,10 @@ def F: fun(i64, i64) i64;
       return_type: (primitive_type))))
 
 ================================================================================
-type: function type with named params
+type: function type with trailing comma
 ================================================================================
 
-def F: fun(a: i64, b: i64) i64;
+def F: fun(i64, i64,) i64;
 
 --------------------------------------------------------------------------------
 
@@ -463,9 +463,7 @@ def F: fun(a: i64, b: i64) i64;
   (type_alias_declaration
     name: (identifier)
     type: (function_type
-      (identifier)
       (primitive_type)
-      (identifier)
       (primitive_type)
       return_type: (primitive_type))))
 
@@ -635,3 +633,59 @@ var opaque: ^^Token;
       type: (secret_type
         type: (type_identifier
           (identifier))))))
+
+================================================================================
+comptime type constructors
+================================================================================
+
+fun f(p: *T) $pointee_of(*T) { }
+val d: $discriminant_of(Shape) = 0;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    name: (identifier)
+    (parameter_list
+      (parameter
+        name: (identifier)
+        type: (pointer_type
+          (type_identifier
+            (identifier)))))
+    return_type: (comptime_type
+      name: (identifier)
+      type: (pointer_type
+        (type_identifier
+          (identifier))))
+    (block))
+  (value_declaration
+    name: (identifier)
+    type: (comptime_type
+      name: (identifier)
+      type: (type_identifier
+        (identifier)))
+    value: (integer_literal)))
+
+================================================================================
+comptime type constructor as a generic argument
+================================================================================
+
+val same: bool = eq[$discriminant_of(T)](a, b);
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (call_expression
+      function: (identifier)
+      (type_arguments
+        (comptime_type
+          name: (identifier)
+          type: (type_identifier
+            (identifier))))
+      (argument_list
+        (identifier)
+        (identifier)))))
