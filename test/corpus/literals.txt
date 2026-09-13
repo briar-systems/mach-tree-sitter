@@ -767,3 +767,75 @@ val v: T = T.[c]{payload};
       (initializer_list
         (initializer_field
           value: (identifier))))))
+
+================================================================================
+float literal: exponent without a fraction
+================================================================================
+
+val a: f32 = 1e0f32;
+val b: f64 = 2E-3;
+val c: u64 = 7u64;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (primitive_type)
+    value: (float_literal))
+  (value_declaration
+    name: (identifier)
+    type: (primitive_type)
+    value: (float_literal))
+  (value_declaration
+    name: (identifier)
+    type: (primitive_type)
+    value: (integer_literal)))
+
+================================================================================
+comptime: type operand forms on reflection intrinsics
+================================================================================
+
+val a: usize = $size_of(*Point);
+val b: usize = $length_of([4]u8);
+val c: bool = $is_secret(^u32);
+val d: usize = $offset_of(Pair, second);
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (comptime_expression
+      name: (identifier)
+      type: (pointer_type
+        (type_identifier
+          (identifier)))))
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (comptime_expression
+      name: (identifier)
+      type: (array_type
+        size: (integer_literal)
+        element: (primitive_type))))
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (comptime_expression
+      name: (identifier)
+      type: (secret_type
+        type: (primitive_type))))
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (comptime_expression
+      name: (identifier)
+      type: (type_identifier
+        (identifier))
+      (identifier))))

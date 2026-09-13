@@ -986,3 +986,92 @@ $if ($mach.build.os == $mach.os.linux) {
           (identifier)
           (identifier)
           (identifier))))))
+
+================================================================================
+keywords as identifiers by position
+================================================================================
+
+fun f() {
+    val rec: u32 = 1;
+    rec.field = cnt + brk;
+    cnt = 2;
+    ext = 3;
+    val r: Row = Row{sel: 0, rec: rec};
+    if (sel r.x) { cnt; }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    name: (identifier)
+    (parameter_list)
+    (block
+      (value_declaration
+        name: (identifier)
+        type: (primitive_type)
+        value: (integer_literal))
+      (expression_statement
+        (assignment_expression
+          left: (field_expression
+            object: (identifier)
+            field: (identifier))
+          right: (binary_expression
+            left: (identifier)
+            right: (identifier))))
+      (expression_statement
+        (assignment_expression
+          left: (identifier)
+          right: (integer_literal)))
+      (expression_statement
+        (assignment_expression
+          left: (identifier)
+          right: (integer_literal)))
+      (value_declaration
+        name: (identifier)
+        type: (type_identifier
+          (identifier))
+        value: (typed_literal
+          type: (type_identifier
+            (identifier))
+          (initializer_list
+            (initializer_field
+              name: (identifier)
+              value: (integer_literal))
+            (initializer_field
+              name: (identifier)
+              value: (identifier)))))
+      (if_statement
+        condition: (sel_expression
+          operand: (field_expression
+            object: (identifier)
+            field: (identifier)))
+        (block
+          (continue_statement))))))
+
+================================================================================
+parameter list with trailing comma
+================================================================================
+
+fun f(
+    a: u32,
+    b: *u8,
+) u32 { ret a; }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    name: (identifier)
+    (parameter_list
+      (parameter
+        name: (identifier)
+        type: (primitive_type))
+      (parameter
+        name: (identifier)
+        type: (pointer_type
+          (primitive_type))))
+    return_type: (primitive_type)
+    (block
+      (return_statement
+        (identifier)))))
