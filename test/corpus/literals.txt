@@ -650,3 +650,120 @@ val x: i64 = 1; # trailing comment
     type: (primitive_type)
     value: (integer_literal))
   (comment))
+
+================================================================================
+tag literal: generic head with payload
+================================================================================
+
+val r: res[u32, Fail] = res[u32, Fail].ok{42};
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (generic_type
+      name: (identifier)
+      (primitive_type)
+      (type_identifier
+        (identifier)))
+    value: (tag_literal
+      type: (generic_type
+        name: (identifier)
+        (primitive_type)
+        (type_identifier
+          (identifier)))
+      case: (identifier)
+      (initializer_list
+        (initializer_field
+          value: (integer_literal))))))
+
+================================================================================
+tag literal: generic head without payload
+================================================================================
+
+val o: opt[str] = opt[str].none{};
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (generic_type
+      name: (identifier)
+      (type_identifier
+        (identifier)))
+    value: (tag_literal
+      type: (generic_type
+        name: (identifier)
+        (type_identifier
+          (identifier)))
+      case: (identifier)
+      (initializer_list))))
+
+================================================================================
+tag literal: qualified generic head
+================================================================================
+
+fun f() { ret std.res[u32, Fail].err{failure}; }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    name: (identifier)
+    (parameter_list)
+    (block
+      (return_statement
+        (tag_literal
+          type: (generic_type
+            name: (type_identifier
+              (identifier)
+              (identifier))
+            (primitive_type)
+            (type_identifier
+              (identifier)))
+          case: (identifier)
+          (initializer_list
+            (initializer_field
+              value: (identifier))))))))
+
+================================================================================
+tag literal: plain dotted head is one type path
+================================================================================
+
+val c: Color = Color.red{};
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (typed_literal
+      type: (type_identifier
+        (identifier)
+        (identifier))
+      (initializer_list))))
+
+================================================================================
+tag literal: case descriptor head
+================================================================================
+
+val v: T = T.[c]{payload};
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (tag_literal
+      type: (type_identifier
+        (identifier))
+      case_descriptor: (identifier)
+      (initializer_list
+        (initializer_field
+          value: (identifier))))))
