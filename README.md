@@ -95,26 +95,31 @@ npx tree-sitter highlight path/to/file.mach
 
 The grammar covers the full Mach language surface:
 
-| Feature                                                      | Status |
-| ------------------------------------------------------------ | ------ |
-| Comments (`#`)                                               | ✅     |
-| Imports and re-exports (`use`, `fwd`)                        | ✅     |
-| Flags (`pub`, `ext`)                                         | ✅     |
-| Bindings (`val`, `var`) and aliases (`def`)                  | ✅     |
-| Records and unions (`rec`, `uni`)                            | ✅     |
-| Functions (`fun`), comptime params (`$name`)                | ✅     |
-| Control flow (`if`, `or`, `for`, `ret`, `brk`, `cnt`, `fin`) | ✅     |
-| Generics (`Type[T]`, `fun name[T]()`)                        | ✅     |
-| Pointers (`*T`, `**T`), address-of (`?`), deref (`@`)       | ✅     |
-| Arrays (`[N]T`)                                              | ✅     |
-| Type casts (`::` value, `:~` bit reinterpret)               | ✅     |
-| Secret types (`^T`) and explicit strips (`expr:^T`)          | ✅     |
-| Annotations (`#[name]`, `#[name(args)]`)                     | ✅     |
-| Composite literals (`Type{ ... }`, `[N]T{ ... }`)            | ✅     |
-| Inline assembly (`asm <isa> { ... }`)                       | ✅     |
-| Compile-time (`$if`, `$mach.*`, `$size_of`, etc.)            | ✅     |
-| Tests (`test "name" { ... }`)                                | ✅     |
-| All operators and precedence levels                          | ✅     |
+| Feature                                                          | Status |
+| ---------------------------------------------------------------- | ------ |
+| Comments (`#`)                                                   | ✅     |
+| Imports and re-exports (`use`, `fwd`)                            | ✅     |
+| Flags (`pub`, `ext`)                                             | ✅     |
+| Bindings (`val`, `var`) and aliases (`def`)                      | ✅     |
+| Records, unions and tags (`rec`, `uni`, `tag Name: u8 { ... }`)  | ✅     |
+| Tag construction (`T.case{...}`, `T[U].case{}`, `T.[c]{...}`)    | ✅     |
+| Case tests (`sel place.case`, `sel place.[case]`)                | ✅     |
+| Functions (`fun`), comptime params (`$name`)                     | ✅     |
+| Control flow (`if`, `or`, `for`, `ret`, `brk`, `cnt`, `fin`)     | ✅     |
+| Generics (`Type[T]`, `fun name[T]()`)                            | ✅     |
+| Pointers (`*T`, `**T`), address-of (`?`), deref (`@`)            | ✅     |
+| Arrays (`[N]T`)                                                  | ✅     |
+| Type casts (`::` value, `:~` bit reinterpret)                    | ✅     |
+| Secret types (`^T`) and declassification (`expr:>T`)             | ✅     |
+| Decorators on any declaration (`#[name]`, `#[deprecated("m")]`)  | ✅     |
+| Composite literals (`Type{ ... }`, `[N]T{ ... }`)                | ✅     |
+| Inline assembly (`asm <isa> { ... }`)                            | ✅     |
+| Compile-time (`$if`, `$each`, `$mach.*`, `$size_of`, `$cases`)   | ✅     |
+| Comptime types (`$pointee_of(T)`, `$discriminant_of(T)`)         | ✅     |
+| Tests (`test "name" { ... }`)                                    | ✅     |
+| All operators and precedence levels                              | ✅     |
+
+The grammar tracks Mach 5.0 (compiler v5.0.0, std 2.0.0).
 
 ## Project Structure
 

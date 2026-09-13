@@ -1,0 +1,16 @@
+#[deprecated("use Shape2")]
+pub tag Shape: u8 {
+#   ^ keyword.type
+#       ^ type.definition
+    empty;
+#   ^ constant
+    circle: f32;
+}
+fun area(s: Shape) f32 {
+    if (sel s.circle) { ret s.circle; }
+#       ^ keyword.operator
+    val o: opt[f32] = opt[f32].none{};
+#                              ^ constant
+    ret 0.0:>f32;
+#          ^ operator
+}

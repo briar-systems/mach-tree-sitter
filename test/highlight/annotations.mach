@@ -5,6 +5,6 @@
 fun annotated(secret: ^u32) u32 {
 #   ^ function.definition
 #                     ^ type.qualifier
-    ret secret:^u32;
+    ret secret:>u32;
 #             ^ operator
 }

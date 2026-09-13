@@ -754,7 +754,8 @@ pub var g_cmp: u8 = 9;
       name: (identifier)
       (comptime_expression
         name: (identifier)
-        (identifier)))
+        type: (type_identifier
+          (identifier))))
     (modifiers)
     name: (identifier)
     type: (primitive_type)
@@ -986,3 +987,116 @@ val os: i64 = $project.target.os;
         (identifier)
         (identifier)
         (identifier)))))
+
+================================================================================
+tag declaration: cases with and without payload
+================================================================================
+
+pub tag Shape: u8 {
+    empty;
+    circle: f32;
+    rect: rec { w: f32; h: f32; };
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (tag_declaration
+    (modifiers)
+    name: (identifier)
+    discriminator: (primitive_type)
+    (tag_case_list
+      (tag_case
+        name: (identifier))
+      (tag_case
+        name: (identifier)
+        payload: (primitive_type))
+      (tag_case
+        name: (identifier)
+        payload: (record_type
+          (field_declaration_list
+            (field_declaration
+              name: (identifier)
+              type: (primitive_type))
+            (field_declaration
+              name: (identifier)
+              type: (primitive_type))))))))
+
+================================================================================
+tag declaration: generic with decorated case
+================================================================================
+
+#[deprecated("use res")]
+tag Result[T, E]: u32 {
+    ok: T;
+    #[deprecated]
+    err: E;
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (tag_declaration
+    (decorator
+      name: (identifier)
+      (string_literal))
+    name: (identifier)
+    (type_parameters
+      (identifier)
+      (identifier))
+    discriminator: (primitive_type)
+    (tag_case_list
+      (tag_case
+        name: (identifier)
+        payload: (type_identifier
+          (identifier)))
+      (tag_case
+        (decorator
+          name: (identifier))
+        name: (identifier)
+        payload: (type_identifier
+          (identifier))))))
+
+================================================================================
+decorators on use, fwd, def and test
+================================================================================
+
+#[deprecated("moved")]
+pub use old.path;
+#[deprecated]
+fwd legacy: old.path;
+#[deprecated("use New")]
+def Old: New;
+#[skip]
+test "later" { }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (use_declaration
+    (decorator
+      name: (identifier)
+      (string_literal))
+    (modifiers)
+    path: (module_path
+      (identifier)
+      (identifier)))
+  (forward_declaration
+    (decorator
+      name: (identifier))
+    alias: (identifier)
+    path: (module_path
+      (identifier)
+      (identifier)))
+  (type_alias_declaration
+    (decorator
+      name: (identifier)
+      (string_literal))
+    name: (identifier)
+    type: (type_identifier
+      (identifier)))
+  (test_declaration
+    (decorator
+      name: (identifier))
+    name: (string_literal)
+    (block)))
