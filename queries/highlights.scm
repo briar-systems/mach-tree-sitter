@@ -11,6 +11,7 @@
 "def" @keyword.type
 "rec" @keyword.type
 "uni" @keyword.type
+"tag" @keyword.type
 "val" @keyword.storage
 "var" @keyword.storage
 "fun" @keyword.function
@@ -24,6 +25,7 @@
 "brk" @keyword.control
 "cnt" @keyword.control
 "fin" @keyword.control
+"sel" @keyword.operator
 
 ; Assembly
 "asm" @keyword
@@ -48,6 +50,19 @@
 
 (type_alias_declaration
   name: (identifier) @type.definition)
+
+(tag_declaration
+  name: (identifier) @type.definition)
+
+(tag_case
+  name: (identifier) @constant)
+
+(tag_literal
+  case: (identifier) @constant)
+
+(comptime_type
+  "$" @keyword.directive
+  name: (identifier) @function.builtin)
 
 (type_parameters
   (identifier) @type.parameter)
@@ -167,6 +182,9 @@
 
 (secret_strip_expression
   operator: _ @operator)
+
+(sel_expression
+  "sel" @keyword.operator)
 
 (secret_type
   marker: "^" @type.qualifier)
