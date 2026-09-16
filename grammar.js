@@ -145,14 +145,14 @@ export default grammar({
         module_path: ($) => sep1($.identifier, "."),
 
         // [`decorator`...] [flags] def Alias: type;
+        // a bodyless `def Name;` declares a handle or abi type
         type_alias_declaration: ($) =>
             seq(
                 repeat($.decorator),
                 optional($.modifiers),
                 "def",
                 field("name", $.identifier),
-                ":",
-                field("type", $._type),
+                optional(seq(":", field("type", $._type))),
                 ";",
             ),
 
