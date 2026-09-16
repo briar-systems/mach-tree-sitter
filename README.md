@@ -109,6 +109,7 @@ The grammar covers the full Mach language surface:
 | Imports and re-exports (`use`, `fwd`)                            | ✅     |
 | Flags (`pub`, `ext`)                                             | ✅     |
 | Bindings (`val`, `var`) and aliases (`def`)                      | ✅     |
+| Handle and ABI types (bodyless `def Name;`)                      | ✅     |
 | Records, unions and tags (`rec`, `uni`, `tag Name: u8 { ... }`)  | ✅     |
 | Tag construction (`T.case{...}`, `T[U].case{}`, `T.[c]{...}`)    | ✅     |
 | Case tests (`sel place.case`, `sel place.[case]`)                | ✅     |
