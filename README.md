@@ -79,6 +79,14 @@ npm test
 
 Tests are defined in `test/corpus/` as Tree-sitter test files. Each file contains input/output pairs showing the expected parse tree for a given snippet of Mach code.
 
+### Check against the Mach compiler
+
+```bash
+npm run conformance
+```
+
+This fetches the Mach release pinned in `.mach-version`, parses every `.mach` file outside `test/fuzz`, and checks that `intrinsics.js` matches the compiler's type-operand intrinsics. Set `MACH_SRC` to a local Mach checkout to check that tree instead. Bump `.mach-version` with each Mach release. CI runs this on every pull request.
+
 ### Parse a file
 
 ```bash

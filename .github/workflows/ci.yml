@@ -30,6 +30,18 @@ jobs:
           git add --intent-to-add --all
           git diff --exit-code
 
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: parse the pinned mach release
+        run: npm run conformance
+
   binding:
     if: github.base_ref == 'main' || inputs.heavy == 'all' || inputs.heavy == 'binding'
     strategy:
@@ -48,7 +60,7 @@ jobs:
 
   gate:
     if: always()
-    needs: [test, binding]
+    needs: [test, conformance, binding]
     runs-on: ubuntu-latest
     steps:
       - uses: briar-systems/.github/.github/actions/gate@main
