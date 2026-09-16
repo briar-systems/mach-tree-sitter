@@ -839,3 +839,50 @@ val d: usize = $offset_of(Pair, second);
       type: (type_identifier
         (identifier))
       (identifier))))
+
+================================================================================
+comptime: numeric shape predicates take a type operand
+================================================================================
+
+val a: bool = $is_integer(*T);
+val b: bool = $is_integer(^u32);
+val c: bool = $is_float([4]T);
+val d: bool = $is_float(f32);
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (comptime_expression
+      name: (identifier)
+      type: (pointer_type
+        (type_identifier
+          (identifier)))))
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (comptime_expression
+      name: (identifier)
+      type: (secret_type
+        type: (primitive_type))))
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (comptime_expression
+      name: (identifier)
+      type: (array_type
+        size: (integer_literal)
+        element: (type_identifier
+          (identifier)))))
+  (value_declaration
+    name: (identifier)
+    type: (type_identifier
+      (identifier))
+    value: (comptime_expression
+      name: (identifier)
+      type: (primitive_type))))

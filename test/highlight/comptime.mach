@@ -1,0 +1,6 @@
+fun is_num[T]() bool {
+    ret $is_integer(*T) || $is_float([4]T);
+#        ^ function.builtin
+#                    ^ type
+#                           ^ function.builtin
+}
