@@ -30,7 +30,8 @@
     "test": "tree-sitter test && npm run test:binding",
     "test:binding": "npm run build && node --test bindings/node/*_test.js",
     "parse": "tree-sitter parse",
-    "highlight": "tree-sitter highlight"
+    "highlight": "tree-sitter highlight",
+    "conformance": "node script/mach-conformance.js"
   },
   "dependencies": {
     "node-addon-api": "^8.0.0",
