@@ -1,6 +1,8 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
+import { TYPE_OPERAND_INTRINSICS } from "./intrinsics.js";
+
 // Precedence levels matching Mach's operator precedence (lowest to highest).
 const PREC = {
     ASSIGNMENT: 1,
@@ -24,22 +26,7 @@ const PREC = {
 const INT_SUFFIX = /[uif][0-9]*/;
 const FLOAT_SUFFIX = /f[0-9]*/;
 
-// Comptime intrinsics whose first operand is a type; mirrors
-// comptime.intrinsic_takes_type_operand in the compiler front end.
-const TYPE_OPERAND_INTRINSIC = choice(
-    "size_of",
-    "length_of",
-    "align_of",
-    "offset_of",
-    "fields",
-    "cases",
-    "is_record",
-    "is_union",
-    "is_tag",
-    "is_pointer",
-    "is_secret",
-    "type_name",
-);
+const TYPE_OPERAND_INTRINSIC = choice(...TYPE_OPERAND_INTRINSICS);
 
 export default grammar({
     name: "mach",

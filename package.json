@@ -53,6 +53,7 @@
   },
   "files": [
     "grammar.js",
+    "intrinsics.js",
     "binding.gyp",
     "prebuilds/**",
     "bindings/node/*",
