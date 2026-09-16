@@ -1,0 +1,5 @@
+#[abi_type("va_list")]
+#  ^ attribute
+pub def VaList;
+#   ^ keyword.type
+#       ^ type.definition

@@ -169,6 +169,37 @@ def Age: i64;
     type: (primitive_type)))
 
 ================================================================================
+def: bodyless handle and abi types
+================================================================================
+
+def Opaque;
+
+#[abi_type("va_list")]
+def VaList;
+
+#[handle("spirv", "sampled_image", Texture2D)]
+pub def Sampler2D;
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (type_alias_declaration
+    name: (identifier))
+  (type_alias_declaration
+    (decorator
+      name: (identifier)
+      (string_literal))
+    name: (identifier))
+  (type_alias_declaration
+    (decorator
+      name: (identifier)
+      (string_literal)
+      (string_literal)
+      (identifier))
+    (modifiers)
+    name: (identifier)))
+
+================================================================================
 def: type alias for pointer
 ================================================================================
 
