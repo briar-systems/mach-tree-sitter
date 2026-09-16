@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-mach",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Tree-sitter grammar for the Mach programming language",
   "type": "module",
   "license": "MIT",
@@ -30,7 +30,8 @@
     "test": "tree-sitter test && npm run test:binding",
     "test:binding": "npm run build && node --test bindings/node/*_test.js",
     "parse": "tree-sitter parse",
-    "highlight": "tree-sitter highlight"
+    "highlight": "tree-sitter highlight",
+    "conformance": "node script/mach-conformance.js"
   },
   "dependencies": {
     "node-addon-api": "^8.0.0",
@@ -53,6 +54,7 @@
   },
   "files": [
     "grammar.js",
+    "intrinsics.js",
     "binding.gyp",
     "prebuilds/**",
     "bindings/node/*",

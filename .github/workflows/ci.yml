@@ -2,10 +2,13 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - dev
-      - main
+  workflow_dispatch:
+    inputs:
+      heavy:
+        description: heavy work to run on this ref
+        type: choice
+        default: none
+        options: [none, all, binding]
 
 permissions:
   contents: read
@@ -21,3 +24,45 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - name: generated sources are current
+        run: |
+          npx tree-sitter generate
+          git add --intent-to-add --all
+          git diff --exit-code
+
+  conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: parse the pinned mach release
+        run: npm run conformance
+
+  binding:
+    if: github.base_ref == 'main' || inputs.heavy == 'all' || inputs.heavy == 'binding'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run test:binding
+
+  gate:
+    if: always()
+    needs: [test, conformance, binding]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: briar-systems/.github/.github/actions/gate@main
+        with:
+          needs: ${{ toJSON(needs) }}
