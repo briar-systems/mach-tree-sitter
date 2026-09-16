@@ -1581,6 +1581,14 @@
                         },
                         {
                           "type": "STRING",
+                          "value": "is_integer"
+                        },
+                        {
+                          "type": "STRING",
+                          "value": "is_float"
+                        },
+                        {
+                          "type": "STRING",
                           "value": "type_name"
                         }
                       ]
