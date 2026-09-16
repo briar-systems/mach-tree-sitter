@@ -14,6 +14,5 @@ export const TYPE_OPERAND_INTRINSICS = [
     "is_pointer",
     "is_secret",
     "is_integer",
-    "is_float",
     "type_name",
 ];

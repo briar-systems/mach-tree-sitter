@@ -1585,10 +1585,6 @@
                         },
                         {
                           "type": "STRING",
-                          "value": "is_float"
-                        },
-                        {
-                          "type": "STRING",
                           "value": "type_name"
                         }
                       ]
