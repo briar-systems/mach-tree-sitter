@@ -4,7 +4,7 @@
   "description": "Tree-sitter grammar for the Mach programming language",
   "type": "module",
   "license": "MIT",
-  "author": "octalide",
+  "author": "Briar Systems LLC",
   "repository": {
     "type": "git",
     "url": "https://github.com/briar-systems/mach-tree-sitter.git"
