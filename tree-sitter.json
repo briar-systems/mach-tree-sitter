@@ -13,12 +13,12 @@
     }
   ],
   "metadata": {
-    "version": "0.6.0",
+    "version": "0.6.1",
     "license": "MIT",
     "description": "Tree-sitter grammar for the Mach programming language",
     "authors": [
       {
-        "name": "octalide"
+        "name": "Briar Systems LLC"
       }
     ],
     "links": {
