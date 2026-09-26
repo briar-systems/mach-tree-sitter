@@ -800,6 +800,7 @@ val a: usize = $size_of(*Point);
 val b: usize = $length_of([4]u8);
 val c: bool = $is_secret(^u32);
 val d: usize = $offset_of(Pair, second);
+val e: u64 = $type_id(*Point);
 
 --------------------------------------------------------------------------------
 
@@ -838,7 +839,15 @@ val d: usize = $offset_of(Pair, second);
       name: (identifier)
       type: (type_identifier
         (identifier))
-      (identifier))))
+      (identifier)))
+  (value_declaration
+    name: (identifier)
+    type: (primitive_type)
+    value: (comptime_expression
+      name: (identifier)
+      type: (pointer_type
+        (type_identifier
+          (identifier))))))
 
 ================================================================================
 comptime: numeric shape predicates take a type operand
