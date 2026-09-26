@@ -290,13 +290,13 @@ export default grammar({
         pack_parameter: ($) =>
             seq(field("name", $.identifier), ":", "..."),
 
-        // [`decorator`...] [flags] test "name" { body }
+        // [`decorator`...] [flags] test name { body }
         test_declaration: ($) =>
             seq(
                 repeat($.decorator),
                 optional($.modifiers),
                 "test",
-                field("name", $.string_literal),
+                field("name", $.identifier),
                 $.block,
             ),
 

@@ -1237,7 +1237,7 @@
           "name": "name",
           "content": {
             "type": "SYMBOL",
-            "name": "string_literal"
+            "name": "identifier"
           }
         },
         {

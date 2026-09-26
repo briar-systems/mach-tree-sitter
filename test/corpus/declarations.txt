@@ -510,7 +510,7 @@ ext fun puts(s: *u8) i32;
 test: simple test declaration
 ================================================================================
 
-test "smoke: pass returns 1" {
+test smoke_pass_returns_1 {
     ret 1;
 }
 
@@ -518,10 +518,19 @@ test "smoke: pass returns 1" {
 
 (source_file
   (test_declaration
-    name: (string_literal)
+    name: (identifier)
     (block
       (return_statement
         (integer_literal)))))
+
+================================================================================
+test: string name is rejected
+:error
+================================================================================
+
+test "label" { }
+
+--------------------------------------------------------------------------------
 
 ================================================================================
 pub: public value
@@ -1099,7 +1108,7 @@ fwd legacy: old.path;
 #[deprecated("use New")]
 def Old: New;
 #[skip]
-test "later" { }
+test later { }
 
 --------------------------------------------------------------------------------
 
@@ -1129,5 +1138,5 @@ test "later" { }
   (test_declaration
     (decorator
       name: (identifier))
-    name: (string_literal)
+    name: (identifier)
     (block)))

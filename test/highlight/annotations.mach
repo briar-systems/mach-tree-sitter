@@ -8,3 +8,8 @@ fun annotated(secret: ^u32) u32 {
     ret secret:>u32;
 #             ^ operator
 }
+
+test annotated_roundtrip {
+# <- keyword.function
+#    ^ function.definition
+}
