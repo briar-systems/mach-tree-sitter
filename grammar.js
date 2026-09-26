@@ -587,13 +587,14 @@ export default grammar({
                 ),
             ),
 
-        // expr(args) or expr[types](args)
+        // expr(args) or expr[types](args); `x[a, b](args)` also reads as a
+        // range index called, and like the compiler the generic call wins
         call_expression: ($) =>
             prec.left(
                 PREC.POSTFIX,
                 seq(
                     field("function", $._postfix_expression),
-                    optional($.type_arguments),
+                    optional(prec.dynamic(1, $.type_arguments)),
                     $.argument_list,
                 ),
             ),
@@ -608,7 +609,7 @@ export default grammar({
                 ")",
             ),
 
-        // expr[index]
+        // expr[index] or expr[index, count], a range of count elements
         index_expression: ($) =>
             prec.left(
                 PREC.POSTFIX,
@@ -616,6 +617,7 @@ export default grammar({
                     field("object", $._postfix_expression),
                     "[",
                     field("index", $._expression),
+                    optional(seq(",", field("count", $._expression))),
                     "]",
                 ),
             ),
