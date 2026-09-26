@@ -16,4 +16,5 @@ export const TYPE_OPERAND_INTRINSICS = [
     "is_integer",
     "is_float",
     "type_name",
+    "type_id",
 ];

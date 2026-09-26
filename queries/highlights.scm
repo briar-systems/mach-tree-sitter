@@ -131,7 +131,7 @@
 
 ; Test declarations
 (test_declaration
-  name: (string_literal) @string.special)
+  name: (identifier) @function.definition)
 
 ; Compile-time
 (comptime_if_declaration
