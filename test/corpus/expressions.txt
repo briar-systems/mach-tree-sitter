@@ -660,6 +660,30 @@ val x: u8 = buf[i + 1];
         right: (integer_literal)))))
 
 ================================================================================
+index: range of elements
+================================================================================
+
+fun f() { p[i, 4] = v[0, 4]; }
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_declaration
+    name: (identifier)
+    (parameter_list)
+    (block
+      (expression_statement
+        (assignment_expression
+          left: (index_expression
+            object: (identifier)
+            index: (identifier)
+            count: (integer_literal))
+          right: (index_expression
+            object: (identifier)
+            index: (integer_literal)
+            count: (integer_literal)))))))
+
+================================================================================
 field: simple field access
 ================================================================================
 
